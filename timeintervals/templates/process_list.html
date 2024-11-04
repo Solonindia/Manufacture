@@ -104,19 +104,18 @@
         <a href="{% url 'home' %}" class="home-link"><b>Home</b></a>
         <a href="{% url 'button_page' %}" class="home-link"><b>Logout</b></a>
     </div>
-    
-    <button id="export-btn">Export to Excel</button>
+
     <h1>Standard Production Data</h1>
-    <table id="processTable">
+    <table border="3" cellspacing="0" id="processTable">
         <thead>
             <tr>
-                <th>Main Process</th>
-                <th>Sub Process</th>
-                <th>Add info</th>
+                <th style=background-color:rgb(230,231,227);>Date:</th>
+                <th style=background-color:rgb(230,231,227);>Project:Pragati</th>
+                <th style=background-color:rgb(230,231,227);></th>
                 {% for time in time_intervals %}
-                    <th><b>{{ time }}</b></th>
+                    <th style=background-color:rgb(230,231,227);><b>{{ time }}</b></th>
                 {% endfor %}
-                <th>Actions</th>
+                <th style=background-color:rgb(230,231,227);color:brown;>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -125,14 +124,14 @@
                     {% for process in group %}
                         <tr>
                             {% if process.main_process != last_main_process %}
-                                <td rowspan="{{ group|length }}" style="background-color:rgba(155,239,253,0.397);">{{ process.main_process }}</td>
+                                <td rowspan="{{ group|length }}" style=background-color:rgba(155,239,253,0.397);>{{ process.main_process }}</td>
                                 {% with process.main_process as last_main_process %}{% endwith %}
                             {% endif %}
                             {% if process.sub_process != last_sub_process %}
-                                <td rowspan="{{ group|length }}" style="background-color:rgb(188,247,188);text-align: left;">{{ process.sub_process }}</td>
+                                <td rowspan="{{ group|length }}" style=background-color:rgb(188,247,188);>{{ process.sub_process }}</td>
                                 {% with process.sub_process as last_sub_process %}{% endwith %}
                             {% endif %}
-                            <td style="background-color:rgb(247,230,206);">{{ process.add_info }}</td>
+                            <td style=background-color:rgb(247,230,206);>{{ process.additional_info }}</td>
                             <!-- Loop through time intervals -->
                             {% for time in time_intervals %}
                             <td class="time-cell" 
@@ -152,7 +151,6 @@
                                 {% endif %}
                             {% endfor %}>
                             
-
                             {% for start_info in process.start_infos %}
                                 {% if start_info.time_range == time %}
                                     <span>START<br>{{ start_info.info }}</span><br>
@@ -170,7 +168,7 @@
                             {% endfor %}
                         </td>
                             {% endfor %}
-                            <td>
+                            <td style=background-color:rgb(230,231,227);>
                                 <a href="{% url 'process_edit' process.pk %}">Edit</a>
                             </td>
                         </tr>
@@ -182,21 +180,18 @@
     <a href="{% url 'process_add' %}">Add New Process</a>
 </body>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const table = document.getElementById("processTable");
-        updateRowSpans();
-    
-        function updateRowSpans() {
+            // Update row spans for main and sub processes
+            const table = document.getElementById("processTable");
             const rows = table.getElementsByTagName("tr");
+
             let lastMainProcess = "";
             let lastSubProcess = "";
-    
-            for (let i = 1; i < rows.length; i++) { // Start from 1 to skip header
+
+            for (let i = 1; i < rows.length; i++) { 
                 const currentRow = rows[i];
-                const mainProcessCell = currentRow.cells[0]; // Main process column
-                const subProcessCell = currentRow.cells[1]; // Sub process column
-    
-                // Hide duplicate main processes
+                const mainProcessCell = currentRow.cells[0]; 
+                const subProcessCell = currentRow.cells[1]; 
+
                 if (mainProcessCell.innerText === lastMainProcess) {
                     mainProcessCell.classList.add("hidden");
                 } else {
@@ -206,8 +201,7 @@
                         mainProcessCell.rowSpan = mainProcessRowSpan;
                     }
                 }
-    
-                // Hide duplicate sub processes
+
                 if (subProcessCell.innerText === lastSubProcess) {
                     subProcessCell.classList.add("hidden");
                 } else {
@@ -218,67 +212,19 @@
                     }
                 }
             }
-        }
-    
-        function calculateRowSpan(rows, startIndex, processValue, cellIndex) {
-            let count = 0;
-            for (let j = startIndex; j < rows.length; j++) {
-                const row = rows[j];
-                const processCell = row.cells[cellIndex];
-                if (processCell.innerText === processValue) {
-                    count++;
-                } else {
-                    break; // Stop counting if the process value changes
+
+            function calculateRowSpan(rows, startIndex, processValue, cellIndex) {
+                let count = 0;
+                for (let j = startIndex; j < rows.length; j++) {
+                    const row = rows[j];
+                    const processCell = row.cells[cellIndex];
+                    if (processCell.innerText === processValue) {
+                        count++;
+                    } else {
+                        break; 
+                    }
                 }
+                return count;
             }
-            return count;
-        }
-    
-        // Add new process dynamically
-        function addNewProcess(newMainProcess, newSubProcess, addInfo, timeIntervals) {
-            const rows = table.getElementsByTagName("tr");
-            let mainProcessRowIndex = -1;
-    
-            // Find the row index of the existing main process
-            for (let i = 1; i < rows.length; i++) {
-                const mainProcessCell = rows[i].cells[0];
-                if (mainProcessCell.innerText === newMainProcess) {
-                    mainProcessRowIndex = i;
-                    break;
-                }
-            }
-    
-            // Create a new row for the sub-process
-            const newRow = table.insertRow(mainProcessRowIndex + 1); // Insert after the main process
-    
-            // Insert Main Process Cell (Empty if it already exists)
-            newRow.insertCell(0); // Keep this empty since we already have the main process above
-    
-            // Insert Sub Process
-            const subProcessCell = newRow.insertCell(1);
-            subProcessCell.innerText = newSubProcess;
-    
-            // Insert Add Info
-            const addInfoCell = newRow.insertCell(2);
-            addInfoCell.innerText = addInfo;
-    
-            // Insert Time Intervals
-            timeIntervals.forEach(time => {
-                const timeCell = newRow.insertCell(-1);
-                timeCell.innerText = time; // Customize this part to reflect your data
-            });
-    
-            // Insert Actions Cell
-            const actionsCell = newRow.insertCell(-1);
-            actionsCell.innerHTML = `<a href="#">Edit</a>`;
-    
-            // Update row spans after adding the new process
-            updateRowSpans();
-        }
-    
-        // Example usage of the function to add new rows
-        // Call this function where you handle the "Add" button click event
-        // addNewProcess('Process A', 'Sub A4', 'Info A4', ['09:00', '10:00']);
-    });
     </script>    
 </html>

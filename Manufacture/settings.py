@@ -92,14 +92,13 @@ WSGI_APPLICATION = 'Manufacture.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'display',
-        'USER' : 'PRODUCTIONRES',
-        'PASSWORD' : 'Res$2024',
-        'HOST' : 'productionres.mysql.database.azure.com',
-        'PORT' : 3306
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': '3306',
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
