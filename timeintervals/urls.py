@@ -15,5 +15,5 @@ urlpatterns = [
     path('user/login/', views.login_view, name='loginu'),
     path('superuser/login/', views.login1_view, name='login'),
     path('', views.button_page, name='button_page'),
-
+    
 ]

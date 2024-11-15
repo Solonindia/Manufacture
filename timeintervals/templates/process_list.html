@@ -11,88 +11,104 @@
             top: 10px;
             left: 20px;
         }
-    
+
         .logo {
             width: 70px;
             height: auto;
         }
-    
+
         body {
             background-color: aliceblue;
             text-align: center;
         }
-    
+
         .hidden {
             display: none;
         }
-    
+
         .start {
             background-color: rgb(198, 243, 198); /* Green for START */
             color: darkgreen;
         }
-    
+
         .end {
             background-color: lightcoral; /* Red for END */
             color: darkred;
         }
-    
+
         .startend {
             background-color: lightpink; /* Orange for START/END */
             color: rgb(10, 10, 10);
         }
-    
+
         .link-container {
-            position: fixed; /* Change to fixed positioning */
-            top: 20px; /* Position from the top */
-            right: 20px; /* Position from the right */
-            display: flex; /* Use flexbox to align items horizontally */
-            gap: 10px; /* Add space between the links */
-            z-index: 1000; /* Ensure it is above other elements */
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
         }
-    
+
         .home-link {
             font-size: 16px;
             color: rgb(66, 4, 107);
-            text-decoration: none; /* Remove underline */
+            text-decoration: none;
         }
-    
+
         .home-link:hover {
-            color: blue; /* Change color on hover */
+            color: blue;
         }
-    
+
         table {
-            width: 100%; /* Make table full width */
-            border-collapse: collapse; /* Combine borders */
-            table-layout: fixed; /* Set fixed layout to ensure equal cell sizes */
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
         }
-    
+
         th, td {
-            width: 150px; /* Original width for other cells */
-            height: 40px; /* Set fixed height for all cells */
-            text-align: center; /* Center text in cells */
-            border: 1px solid #050505; /* Add border to cells */
-            overflow: hidden; /* Hide overflow content */
-            text-overflow: ellipsis; /* Show ellipsis for overflow content */
-            white-space: nowrap; /* Prevent line breaks within cells */
-            vertical-align: middle; /* Center content vertically */
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #050505;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
         }
-    
-        /* Specific widths for the first two columns */
+
         th:nth-child(1), td:nth-child(1) {
-            width: 200px; /* Increased width for the main process */
+            width: 200px;
         }
-    
+
         th:nth-child(2), td:nth-child(2) {
-            width: 300px; /* Increased width for the sub process */
+            width: 300px;
         }
-    
+
         th {
             background-color: rgb(230,231,227);
         }
-    
+
         .time-cell {
-            vertical-align: middle; /* Ensure vertical alignment */
+            vertical-align: middle;
         }
+        .add-subprocess-container {
+        margin-bottom: 20px; /* Add some spacing below the button */
+    }
+
+    #addButton {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #addButton:hover {
+        background-color: #45a049;
+    }
     </style>       
 </head>
 <body>
@@ -104,127 +120,110 @@
         <a href="{% url 'home' %}" class="home-link"><b>Home</b></a>
         <a href="{% url 'button_page' %}" class="home-link"><b>Logout</b></a>
     </div>
-
+    
     <h1>Standard Production Data</h1>
-    <table border="3" cellspacing="0" id="processTable">
+
+    <table id="processTable">
         <thead>
             <tr>
-                <th style=background-color:rgb(230,231,227);>Date:</th>
-                <th style=background-color:rgb(230,231,227);>Project:Pragati</th>
-                <th style=background-color:rgb(230,231,227);></th>
+                <th>Main Process</th>
+                <th>Sub Process</th>
+                <th>Add Info</th>
                 {% for time in time_intervals %}
-                    <th style=background-color:rgb(230,231,227);><b>{{ time }}</b></th>
+                    <th><b>{{ time }}</b></th>
                 {% endfor %}
-                <th style=background-color:rgb(230,231,227);color:brown;>Actions</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for group in grouped_processes %}
-                {% with last_main_process="" last_sub_process="" %}
-                    {% for process in group %}
-                        <tr>
-                            {% if process.main_process != last_main_process %}
-                                <td rowspan="{{ group|length }}" style=background-color:rgba(155,239,253,0.397);>{{ process.main_process }}</td>
-                                {% with process.main_process as last_main_process %}{% endwith %}
-                            {% endif %}
-                            {% if process.sub_process != last_sub_process %}
-                                <td rowspan="{{ group|length }}" style=background-color:rgb(188,247,188);>{{ process.sub_process }}</td>
-                                {% with process.sub_process as last_sub_process %}{% endwith %}
-                            {% endif %}
-                            <td style=background-color:rgb(247,230,206);>{{ process.additional_info }}</td>
-                            <!-- Loop through time intervals -->
-                            {% for time in time_intervals %}
-                            <td class="time-cell" 
-                            {% for start_info in process.start_infos %}
-                                {% if start_info.time_range == time %}
-                                    style="background-color: rgb(198, 243, 198); color: darkgreen;" 
-                                {% endif %}
-                            {% endfor %} 
-                            {% for end_info in process.end_infos %}
-                                {% if end_info.time_range == time %}
-                                    style="background-color: lightcoral; color: darkred;" 
-                                {% endif %}
-                            {% endfor %} 
-                            {% for startend_info in process.startend_infos %}
-                                {% if startend_info.time_range == time %}
-                                    style="background-color: lightpink; color: rgb(10, 10, 10);" 
-                                {% endif %}
-                            {% endfor %}>
-                            
-                            {% for start_info in process.start_infos %}
+            {% for detail in process_details %}
+                <tr>
+                    <!-- Main Process cell -->
+                    <td rowspan="{{ detail.process|length }}" style="background-color:rgba(155,239,253,0.397);">
+                        {{ detail.process.main_process }}
+                    </td>
+        
+                    <!-- Sub Process and Add Info -->
+                    <td style="background-color:rgb(188,247,188);text-align: left;">{{ detail.process.sub_process }}</td>
+                    <td style="background-color:rgb(247,230,206);">{{ detail.add_info }}</td>
+        
+                    {% for time in time_intervals %}
+                        <td class="time-cell">
+                            {% for start_info in detail.start_infos %}
                                 {% if start_info.time_range == time %}
                                     <span>START<br>{{ start_info.info }}</span><br>
                                 {% endif %}
                             {% endfor %}
-                            {% for end_info in process.end_infos %}
+                            {% for end_info in detail.end_infos %}
                                 {% if end_info.time_range == time %}
                                     <span>END<br>{{ end_info.info }}</span><br>
                                 {% endif %}
                             {% endfor %}
-                            {% for startend_info in process.startend_infos %}
+                            {% for startend_info in detail.startend_infos %}
                                 {% if startend_info.time_range == time %}
                                     <span>START/END<br>{{ startend_info.info }}</span><br>
                                 {% endif %}
                             {% endfor %}
                         </td>
-                            {% endfor %}
-                            <td style=background-color:rgb(230,231,227);>
-                                <a href="{% url 'process_edit' process.pk %}">Edit</a>
-                            </td>
-                        </tr>
                     {% endfor %}
-                {% endwith %}
+                    <td>
+                        <a href="{% url 'process_edit' detail.process.pk %}">Edit</a>
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'process_add' %}">Add New Process</a>
+
+    <a href="{% url 'process_add' %}" onclick="openAddProcessForm()">Add New Process</a>
 </body>
 <script>
-            // Update row spans for main and sub processes
-            const table = document.getElementById("processTable");
-            const rows = table.getElementsByTagName("tr");
+    const table = document.getElementById("processTable");
+    const rows = table.getElementsByTagName("tr");
 
-            let lastMainProcess = "";
-            let lastSubProcess = "";
+    let lastMainProcess = "";
+    let lastSubProcess = "";
 
-            for (let i = 1; i < rows.length; i++) { 
-                const currentRow = rows[i];
-                const mainProcessCell = currentRow.cells[0]; 
-                const subProcessCell = currentRow.cells[1]; 
+    for (let i = 1; i < rows.length; i++) { 
+        const currentRow = rows[i];
+        const mainProcessCell = currentRow.cells[0]; 
+        const subProcessCell = currentRow.cells[1]; 
 
-                if (mainProcessCell.innerText === lastMainProcess) {
-                    mainProcessCell.classList.add("hidden");
-                } else {
-                    lastMainProcess = mainProcessCell.innerText;
-                    const mainProcessRowSpan = calculateRowSpan(rows, i, lastMainProcess, 0);
-                    if (mainProcessRowSpan > 1) {
-                        mainProcessCell.rowSpan = mainProcessRowSpan;
-                    }
-                }
-
-                if (subProcessCell.innerText === lastSubProcess) {
-                    subProcessCell.classList.add("hidden");
-                } else {
-                    lastSubProcess = subProcessCell.innerText;
-                    const subProcessRowSpan = calculateRowSpan(rows, i, lastSubProcess, 1);
-                    if (subProcessRowSpan > 1) {
-                        subProcessCell.rowSpan = subProcessRowSpan;
-                    }
-                }
+        // Check if main process is the same as the last one
+        if (mainProcessCell.innerText === lastMainProcess) {
+            mainProcessCell.classList.add("hidden");
+        } else {
+            lastMainProcess = mainProcessCell.innerText;
+            const mainProcessRowSpan = calculateRowSpan(rows, i, lastMainProcess, 0);
+            if (mainProcessRowSpan > 1) {
+                mainProcessCell.rowSpan = mainProcessRowSpan;
             }
+        }
 
-            function calculateRowSpan(rows, startIndex, processValue, cellIndex) {
-                let count = 0;
-                for (let j = startIndex; j < rows.length; j++) {
-                    const row = rows[j];
-                    const processCell = row.cells[cellIndex];
-                    if (processCell.innerText === processValue) {
-                        count++;
-                    } else {
-                        break; 
-                    }
-                }
-                return count;
+        // Check if sub process is the same as the last one
+        if (subProcessCell.innerText === lastSubProcess) {
+            subProcessCell.classList.add("hidden");
+        } else {
+            lastSubProcess = subProcessCell.innerText;
+            const subProcessRowSpan = calculateRowSpan(rows, i, lastSubProcess, 1);
+            if (subProcessRowSpan > 1) {
+                subProcessCell.rowSpan = subProcessRowSpan;
             }
-    </script>    
+        }
+    }
+
+    function calculateRowSpan(rows, startIndex, processValue, cellIndex) {
+        let count = 0;
+        for (let j = startIndex; j < rows.length; j++) {
+            const row = rows[j];
+            const processCell = row.cells[cellIndex];
+            if (processCell.innerText === processValue) {
+                count++;
+            } else {
+                break; 
+            }
+        }
+        return count;
+    }
+</script>
+</body>
 </html>

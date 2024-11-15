@@ -67,23 +67,18 @@ def login1_view(request):
     return render(request, 'login.html', {'form': form})
 
 from collections import defaultdict
-
 def process_list(request):
+    # Fetch all processes with prefetching related intervals
     processes = Process.objects.prefetch_related('intervals').all().order_by('created_at')
 
-    # Group processes by main_process and sub_process
+    # Group processes by main_process and sub_process using defaultdict
     grouped_processes = defaultdict(list)
 
     for process in processes:
         key = (process.main_process, process.sub_process)
         grouped_processes[key].append(process)
 
-    # Convert the defaultdict to a list of lists for rendering
-    grouped_process_list = []
-    for key, group in grouped_processes.items():
-        grouped_process_list.append(group)
-
-    # Prepare time intervals
+    # Prepare time intervals (10-minute intervals between 08:30 and 00:00)
     time_intervals = []
     start_time = datetime.strptime('08:30', '%H:%M')
     end_time = datetime.strptime('00:00', '%H:%M') + timedelta(days=1)
@@ -93,76 +88,82 @@ def process_list(request):
         time_intervals.append(f"{start_time.strftime('%H:%M')}-{next_time.strftime('%H:%M')}")
         start_time = next_time
 
-    # Prepare process information with intervals
-    for group in grouped_process_list:
+    # Process each group to add interval information
+    process_details = []  # Temporary list to store process and interval data
+
+    for group in grouped_processes.values():
         for process in group:
             start_infos = []
             end_infos = []
             startend_infos = []
 
-            add_info = process.add_info  
+            add_info = process.add_info  # Add any process-specific info (no changes here)
 
-            for interval in process.intervals.all():
-                if interval.start_time:
-                    formatted_start_time = interval.start_time.strftime('%H:%M')
-                    next_start_time = (datetime.combine(datetime.today(), interval.start_time) + timedelta(minutes=10)).strftime('%H:%M')
-                    time_range = f"{formatted_start_time}-{next_start_time}"
-                    start_infos.append({'time_range': time_range, 'info': interval.start_info})
+            def generate_interval_info(interval_field, time_type):
+                interval_infos = []
+                # Iterate over the related 'intervals' for the given process
+                for interval in process.intervals.all():
+                    if getattr(interval, time_type):  # Check if the time_type field is set
+                        time_obj = getattr(interval, time_type)  # Get the time object (start_time, end_time, or startend_time)
+                        formatted_time = time_obj.strftime('%H:%M')
+                        next_time = (datetime.combine(datetime.today(), time_obj) + timedelta(minutes=10)).strftime('%H:%M')
+                        time_range = f"{formatted_time}-{next_time}"
+                        
+                        # Map the correct info field based on the time_type
+                        if time_type == 'start_time':
+                            info = interval.start_info
+                        elif time_type == 'end_time':
+                            info = interval.end_info
+                        else:  # for startend_time
+                            info = interval.startend_info
+                        
+                        interval_infos.append({'time_range': time_range, 'info': info})
+                
+                return interval_infos
 
-                if interval.end_time:
-                    formatted_end_time = interval.end_time.strftime('%H:%M')
-                    next_end_time = (datetime.combine(datetime.today(), interval.end_time) + timedelta(minutes=10)).strftime('%H:%M')
-                    time_range = f"{formatted_end_time}-{next_end_time}"
-                    end_infos.append({'time_range': time_range, 'info': interval.end_info})
+            # Generate the interval information
+            start_infos = generate_interval_info('start_infos', 'start_time')
+            end_infos = generate_interval_info('end_infos', 'end_time')
 
-                if interval.startend_time:
-                    formatted_startend_time = interval.startend_time.strftime('%H:%M')
-                    next_startend_time = (datetime.combine(datetime.today(), interval.startend_time) + timedelta(minutes=10)).strftime('%H:%M')
-                    time_range = f"{formatted_startend_time}-{next_startend_time}"
-                    startend_infos.append({'time_range': time_range, 'info': interval.start_info})
-
-            process.start_infos = start_infos
-            process.end_infos = end_infos
-            process.startend_infos = startend_infos
-            process.add_info = add_info
+            # Store the process with its generated interval information in a dictionary
+            process_details.append({
+                'process': process,
+                'start_infos': start_infos,
+                'end_infos': end_infos,
+                'add_info': add_info,
+            })
 
     return render(request, 'process_list.html', {
-        'grouped_processes': grouped_process_list,
+        'process_details': process_details,
         'time_intervals': time_intervals,
     })
-
 def process_add(request):
     if request.method == 'POST':
-        form = ProcessForm(request.POST)
-        formset = ProcessIntervalFormSet(request.POST)
+        main_process = request.POST.get('main_process')
+        sub_process = request.POST.get('sub_process')
+        add_info = request.POST.get('add_info')
 
-        if form.is_valid() and formset.is_valid():
-            process = form.save()  # Save the Process instance
-            intervals = formset.save(commit=False)  # Do not commit yet
+        # Check if the main process already exists
+        existing_main_process = Process.objects.filter(main_process=main_process).first()
 
-            for interval in intervals:
-                interval.process = process  # Associate the interval with the process
+        if existing_main_process:
+            # If the main process exists, create a new sub-process under it
+            Process.objects.create(
+                main_process=existing_main_process,
+                sub_process=sub_process,
+                add_info=add_info
+            )
+        else:
+            # If the main process doesn't exist, create a new main process and sub-process
+            Process.objects.create(
+                main_process=main_process,
+                sub_process=sub_process,
+                add_info=add_info
+            )
 
-                # Ensure that start_time and end_time are valid
-                if interval.start_time and interval.end_time and interval.startend_time:
-                    start_dt = datetime.combine(timezone.now().date(), interval.start_time)
-                    end_dt = datetime.combine(timezone.now().date(), interval.end_time)
-                    startend_dt = datetime.combine(timezone.now().date(), interval.startend_time)
+        return redirect('process_list')  # Redirect back to the process list view (or wherever)
 
-                    # Check if end_time is later than start_time
-                    if end_dt <= start_dt:
-                        formset.errors.append("End time must be later than start time.")
-                        return render(request, 'process_add.html', {'form': form, 'formset': formset})
-
-                interval.save()  # Now save the interval
-
-            return redirect('process_list')  # Redirect to the process list after saving
-
-    else:
-        form = ProcessForm()
-        formset = ProcessIntervalFormSet(queryset=ProcessInterval.objects.none())  # Ensures empty formset on GET
-
-    return render(request, 'process_add.html', {'form': form, 'formset': formset})
+    return render(request, 'process_add.html')
 
 def process_edit(request, process_id):
     process = get_object_or_404(Process, pk=process_id)  # Fetch the process object

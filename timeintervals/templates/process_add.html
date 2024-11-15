@@ -3,49 +3,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Process</title>
     <style>
-       .logo {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .background-container {
+            width: 100%;
+            height: 100%;
+            background-image: url("{% static 'bty.jpg' %}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(8px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        .logo-container {
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 70px; /* Adjust width as needed */
-            height: auto; /* Maintain aspect ratio */
-        } 
+        }
+
+        .logo {
+            width: 70px;
+            height: auto;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .form-action {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="logo">
-    <img src="{% static 'logo.webp' %}" alt="Logo">
+    <div class="background-container"></div>
+    <div class="logo-container">
+        <img src="{% static 'logo.webp' %}" alt="Logo" class="logo">
     </div>
-    <h1>Add Process</h1>
-    <form method="post">
-        {% csrf_token %}
-        <div>
-            <h2>Main Process Details</h2>
-            {{ form.as_p }}
-            {% for field in form %}
-                {% for error in field.errors %}
-                    <div style="color: red;">{{ error }}</div>
+    <div class="container">
+        <h3>Add Process</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Main Process Field -->
+            <div class="form-group">
+                <label for="id_main_process">Main Process</label>
+                <input type="text" id="id_main_process" name="main_process" value="{{ form.main_process.value }}" placeholder="Enter Main Process" required>
+                {% for error in form.main_process.errors %}
+                    <div class="error">{{ error }}</div>
                 {% endfor %}
-            {% endfor %}
-        </div>
+            </div>
 
-        <div>
-            <h3>Intervals</h3>
-            {{ formset.management_form }}
-            {{ formset.as_p }}
-            {% for form in formset %}
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <div style="color: red;">{{ error }}</div>
-                    {% endfor %}
+            <!-- Sub Process Field -->
+            <div class="form-group">
+                <label for="id_sub_process">Sub Process</label>
+                <input type="text" id="id_sub_process" name="sub_process" value="{{ form.sub_process.value }}" placeholder="Enter Sub Process" required>
+                {% for error in form.sub_process.errors %}
+                    <div class="error">{{ error }}</div>
                 {% endfor %}
-            {% endfor %}
-        </div>
+            </div>
 
-        <button type="submit">Add Process</button>
-    </form>
-    <a href="{% url 'process_list' %}">Cancel</a>
+            <!-- Additional Info Field -->
+            <div class="form-group">
+                <label for="id_add_info">Additional Info</label>
+                <textarea id="id_add_info" name="add_info" rows="4" placeholder="Enter Additional Information">{{ form.add_info.value }}</textarea>
+                {% for error in form.add_info.errors %}
+                    <div class="error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-action">
+                <button type="submit">Add Process</button>
+            </div>
+        </form>
+
+        <!-- Cancel Link -->
+        <a href="{% url 'process_list' %}">Cancel</a>
+    </div>
 </body>
 </html>
