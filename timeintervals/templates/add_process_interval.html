@@ -3,25 +3,148 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Process Interval</title>
     <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
         .logo {
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 70px; /* Adjust width as needed */
-            height: auto; /* Maintain aspect ratio */
+            width: 100px; /* Increased size for the logo */
+            height: auto;
+        }
+
+        h3 {
+            color: #12045f;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin: 20px auto; /* Reduced margin-top */
+            overflow: hidden; /* Ensures no scrolling */
+        }
+
+        /* Process Info Styling */
+        .process-info {
+            font-size: 20px; /* Increase font size */
+            font-weight: bold;
+            margin-bottom: 20px; /* Reduced margin-bottom */
+            display: flex; /* Align main and sub processes on the same line */
+            justify-content: space-between; /* Space between the items */
+        }
+
+        .process-info div {
+            flex: 1; /* Allow each element to take equal space */
+            margin-right: 10px; /* Add space between the main and sub process */
+        }
+
+        .process-label {
+            font-size: 18px; /* Font size for the labels */
+            font-weight: normal; /* Normal weight for the labels */
+        }
+
+        .process-value {
+            font-size: 18px; /* Font size for the values */
+            font-weight: normal; /* Normal weight for the values */
+            color: #007bff; /* Blue color for the values */
+        }
+
+        /* Styling for form fields */
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container form p {
+            margin: 10px 0;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .form-container form button {
+            background-color: #007bff;  /* Blue color for buttons */
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 35px;
+        }
+
+        .form-container form button:hover {
+            background-color: #0056b3;  /* Darker blue on hover */
+        }
+
+        .back-button {
+            margin-top: 20px;
+            background-color: #007bff;  /* Blue color for back button */
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;  /* Darker blue on hover */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-container {
+                width: 80%;
+            }
+
+            h3 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Logo -->
     <img src="{% static 'logo.webp' %}" alt="Logo" class="logo">
-    <h3>Add Process Interval for {{process.main_process}}--{{ process.sub_process }}</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Add Interval</button>
-    </form>
-    <a href="{% url 'process_edit' process.id %}">Cancel</a>
+    
+    <!-- Form Container -->
+    <div class="form-container">
+        <h3>Add Process Interval</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Display Process Info (Main & Sub Process) on the same line -->
+            <div class="process-info">
+                <div>
+                    <span class="process-label">Main Process:</span>
+                    <span class="process-value">{{ process.main_process }}</span>
+                </div>
+            </div>
+            <div>
+                <span class="process-label">Sub Process:</span>
+                <span class="process-value">{{ process.sub_process }}</span>
+            </div>
+
+            <!-- Render Form Fields (without Start Time) -->
+            {{ form.as_p }}
+            
+            <button type="submit">Add Interval</button>
+        </form>
+    </div>
+
+    <!-- Back Button -->
+    <a href="{% url 'process_list' %}" class="back-button">Back to Process List</a>
 </body>
 </html>

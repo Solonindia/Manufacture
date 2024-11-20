@@ -185,7 +185,7 @@ def add_process_interval(request, process_id):
             interval = form.save(commit=False)  # Do not save yet
             interval.process = process  # Associate with the correct process
             interval.save()  # Now save it
-            return redirect('process_edit', process_id=process.id)  # Use process_id instead of pk
+            return redirect('process_list')  # Use process_id instead of pk
     else:
         form = ProcessIntervalForm()
 
