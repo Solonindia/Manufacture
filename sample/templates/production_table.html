@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Table</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Production Table</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Main Process</th>
+                <th>Sub Process</th>
+                <th>Additional Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for main_process in main_processes %}
+                {% for sub_process in main_process.subprocesses.all %}
+                    <tr>
+                        {% if forloop.first %}
+                            <td rowspan="{{ main_process.subprocesses.count }}">{{ main_process.name }}</td>
+                        {% endif %}
+                        <td>{{ sub_process.name }}</td>
+                        <td>{{ sub_process.additional_info }}</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'add_data' %}">Add New Data</a>
+</body>
+</html>

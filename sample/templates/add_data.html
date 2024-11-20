@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Data</title>
+</head>
+<body>
+    <h1>Add New Main Process and Sub Process</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <h2>Main Process</h2>
+        {{ main_form.as_p }}
+
+        <h2>Sub Process</h2>
+        {{ sub_form.as_p }}
+
+        <button type="submit">Save</button>
+    </form>
+
+    <a href="{% url 'production_table' %}">Back to Table</a>
+</body>
+</html>

@@ -148,7 +148,7 @@
                 {% for time in time_intervals %}
                     <th style="background-color:rgb(230,231,227);">{{ time }}</th>
                 {% endfor %}
-                <th colspan="2" style="background-color:rgb(230,231,227);">Actions</th>
+                <th style="background-color:rgb(230,231,227);">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -166,7 +166,6 @@
                                 {% with process.sub_process as last_sub_process %}{% endwith %}
                             {% endif %}
                             <td style="background-color:rgb(247,230,206);">{{ process.add_info }}</td>
-                            <!-- Loop through time intervals -->
                             {% for time in time_intervals %}
                             <td class="time-cell" 
                             {% for start_info in process.start_infos %} 
@@ -221,7 +220,6 @@
             const projectNameText = document.getElementById("projectNameText");
             const editButton = document.getElementById("editButton");
 
-            // Load the saved project name from localStorage
             const savedProjectName = localStorage.getItem("projectName");
             if (savedProjectName) {
                 projectNameText.textContent = savedProjectName;
@@ -229,7 +227,6 @@
                 projectNameDisplay.classList.remove("hidden");
             }
 
-            // Save the project name when clicking "Save"
             saveButton.addEventListener("click", function() {
                 const projectName = projectNameInput.value.trim();
                 if (projectName) {
