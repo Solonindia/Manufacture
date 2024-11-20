@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production Table</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Production Table</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Main Process</th>
+                <th>Sub Process</th>
+                <th>Additional Info</th>
+                <th>Time Intervals</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for main_process in main_processes %}
+                <tr>
+                    <!-- Main Process Name -->
+                    <td rowspan="{% with main_process.sub_processes.count|add:1 as mp_rows %}{{ mp_rows }}{% endwith %}">
+                        {{ main_process.name }}
+                    </td>
+                    
+                    <!-- Sub Processes -->
+                    {% for sub_process in main_process.sub_processes.all %}
+                        {% if not forloop.first %}<tr>{% endif %}
+                        <td rowspan="{% with sub_process.time_intervals.count|add:1 as sp_rows %}{{ sp_rows }}{% endwith %}">
+                            {{ sub_process.name }}
+                        </td>
+                        <td rowspan="{{ sub_process.time_intervals.count|add:1 }}">
+                            {{ sub_process.additional_info|default:"N/A" }}
+                        </td>
+    
+                        <!-- Time Intervals -->
+                        {% for time_interval in sub_process.time_intervals.all %}
+                            {% if not forloop.first %}<tr>{% endif %}
+                            <td>{{ time_interval.start_time }} - {{ time_interval.end_time }}</td>
+                            </tr>
+                        {% endfor %}
+                        
+                        {% if sub_process.time_intervals.count == 0 %}
+                            <td>N/A</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if main_process.sub_processes.count == 0 %}
+                        <td colspan="3">No Sub Processes</td>
+                        </tr>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{% url 'add_main_process' %}">Add Main Process</a> 
+    <a href="{% url 'add_sub_process' %}">Add Sub Process</a> 
+    <a href="{% url 'add_time_interval' %}">Add Time Interval</a>
+</body>
+</html>

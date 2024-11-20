@@ -68,17 +68,12 @@ def login1_view(request):
 
 from collections import defaultdict
 def process_list(request):
-    # Fetch all processes with prefetching related intervals
-    processes = Process.objects.prefetch_related('intervals').all().order_by('created_at')
-
-    # Group processes by main_process and sub_process using defaultdict
+    processes = Process.objects.prefetch_related('intervals').all()
     grouped_processes = defaultdict(list)
 
     for process in processes:
-        key = (process.main_process, process.sub_process)
-        grouped_processes[key].append(process)
+        grouped_processes[process.main_process].append(process)
 
-    # Prepare time intervals (10-minute intervals between 08:30 and 00:00)
     time_intervals = []
     start_time = datetime.strptime('08:30', '%H:%M')
     end_time = datetime.strptime('00:00', '%H:%M') + timedelta(days=1)
@@ -88,55 +83,49 @@ def process_list(request):
         time_intervals.append(f"{start_time.strftime('%H:%M')}-{next_time.strftime('%H:%M')}")
         start_time = next_time
 
-    # Process each group to add interval information
-    process_details = []  # Temporary list to store process and interval data
+    process_details = []
 
-    for group in grouped_processes.values():
-        for process in group:
-            start_infos = []
-            end_infos = []
-            startend_infos = []
+    for main_process, sub_processes in grouped_processes.items():
+        process_group = []
+        sub_process_counts = defaultdict(int)
 
-            add_info = process.add_info  # Add any process-specific info (no changes here)
+        # Group by sub_process without sorting them alphabetically
+        for sub_process, group in groupby(sub_processes, key=lambda x: x.sub_process):
+            sub_process_list = list(group)
+            rowspan = len(sub_process_list)  # Calculate rowspan once
 
-            def generate_interval_info(interval_field, time_type):
-                interval_infos = []
-                # Iterate over the related 'intervals' for the given process
+            for index, process in enumerate(sub_process_list):
+                start_infos = []
+                end_infos = []
+
                 for interval in process.intervals.all():
-                    if getattr(interval, time_type):  # Check if the time_type field is set
-                        time_obj = getattr(interval, time_type)  # Get the time object (start_time, end_time, or startend_time)
-                        formatted_time = time_obj.strftime('%H:%M')
-                        next_time = (datetime.combine(datetime.today(), time_obj) + timedelta(minutes=10)).strftime('%H:%M')
+                    if interval.start_time:
+                        formatted_time = interval.start_time.strftime('%H:%M')
+                        next_time = (datetime.combine(datetime.today(), interval.start_time) + timedelta(minutes=10)).strftime('%H:%M')
                         time_range = f"{formatted_time}-{next_time}"
-                        
-                        # Map the correct info field based on the time_type
-                        if time_type == 'start_time':
-                            info = interval.start_info
-                        elif time_type == 'end_time':
-                            info = interval.end_info
-                        else:  # for startend_time
-                            info = interval.startend_info
-                        
-                        interval_infos.append({'time_range': time_range, 'info': info})
-                
-                return interval_infos
+                        start_infos.append({'time_range': time_range, 'info': interval.start_info})
 
-            # Generate the interval information
-            start_infos = generate_interval_info('start_infos', 'start_time')
-            end_infos = generate_interval_info('end_infos', 'end_time')
+                    if interval.end_time:
+                        formatted_time = interval.end_time.strftime('%H:%M')
+                        next_time = (datetime.combine(datetime.today(), interval.end_time) + timedelta(minutes=10)).strftime('%H:%M')
+                        time_range = f"{formatted_time}-{next_time}"
+                        end_infos.append({'time_range': time_range, 'info': interval.end_info})
 
-            # Store the process with its generated interval information in a dictionary
-            process_details.append({
-                'process': process,
-                'start_infos': start_infos,
-                'end_infos': end_infos,
-                'add_info': add_info,
-            })
+                process_group.append({
+                    'process': process,
+                    'start_infos': start_infos,
+                    'end_infos': end_infos,
+                    'add_info': process.add_info,
+                    'rowspan': rowspan if index == 0 else 0,  # Set rowspan only for the first occurrence
+                })
+
+        process_details.append({'main_process': main_process, 'sub_processes': process_group})
 
     return render(request, 'process_list.html', {
         'process_details': process_details,
         'time_intervals': time_intervals,
     })
+
 def process_add(request):
     if request.method == 'POST':
         main_process = request.POST.get('main_process')

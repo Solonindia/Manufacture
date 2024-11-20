@@ -6,110 +6,152 @@
     <title>Process List</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style>
-        .logo-container {
-            position: absolute;
-            top: 10px;
-            left: 20px;
-        }
+.logo-container {
+    position: fixed;
+    top: 10px;
+    left: 20px;
+    z-index: 10;
+}
 
-        .logo {
-            width: 70px;
-            height: auto;
-        }
+.logo {
+    width: 70px;
+    height: auto;
+}
 
-        body {
-            background-color: aliceblue;
-            text-align: center;
-        }
+body {
+    background-color: aliceblue;
+    text-align: center;
+}
 
-        .hidden {
-            display: none;
-        }
+.hidden {
+    display: none;
+}
 
-        .start {
-            background-color: rgb(198, 243, 198); /* Green for START */
-            color: darkgreen;
-        }
+.start {
+    background-color: rgb(198, 243, 198); /* Green for START */
+    color: darkgreen;
+}
 
-        .end {
-            background-color: lightcoral; /* Red for END */
-            color: darkred;
-        }
+.end {
+    background-color: lightcoral; /* Red for END */
+    color: darkred;
+}
 
-        .startend {
-            background-color: lightpink; /* Orange for START/END */
-            color: rgb(10, 10, 10);
-        }
+.startend {
+    background-color: lightpink; /* Orange for START/END */
+    color: rgb(10, 10, 10);
+}
 
-        .link-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
+.link-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
 
-        .home-link {
-            font-size: 16px;
-            color: rgb(66, 4, 107);
-            text-decoration: none;
-        }
+.home-link {
+    font-size: 16px;
+    color: rgb(66, 4, 107);
+    text-decoration: none;
+}
 
-        .home-link:hover {
-            color: blue;
-        }
+.home-link:hover {
+    color: blue;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
 
-        th, td {
-            width: 150px;
-            height: 40px;
-            text-align: center;
-            border: 1px solid #050505;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
+th, td {
+    width: 150px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #050505;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: 0px;  /* Increased padding */
+}
 
-        th:nth-child(1), td:nth-child(1) {
-            width: 200px;
-        }
+th:nth-child(1), td:nth-child(1) {
+    width: 200px;
+}
 
-        th:nth-child(2), td:nth-child(2) {
-            width: 300px;
-        }
+th:nth-child(2), td:nth-child(2) {
+    width: 300px;
+}
 
-        th {
-            background-color: rgb(230,231,227);
-        }
+th {
+    background-color: #f0f0f0; /* Lighter gray */
+    font-weight: bold;
+    color: #333;
+}
 
-        .time-cell {
-            vertical-align: middle;
-        }
-        .add-subprocess-container {
-        margin-bottom: 20px; /* Add some spacing below the button */
+.time-cell {
+    vertical-align: middle;
+}
+
+.add-subprocess-container {
+    margin-bottom: 20px; /* Add some spacing below the button */
+}
+
+#addButton {
+    padding: 12px 24px; /* Increased padding */
+    background-color: #4CAF50;
+    color: white;
+    font-size: 18px; /* Larger font size */
+    border: none;
+    border-radius: 8px; /* More rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+#addButton:hover {
+    background-color: #45a049;
+}
+
+.add-info-with-border {
+    border: 1px solid black;
+}
+
+.add-info-no-border {
+    border: none;
+}
+
+@media (max-width: 768px) {
+    th, td {
+        font-size: 14px;
+        padding: 8px;
     }
 
-    #addButton {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
+    table {
+        width: 100%;
+        overflow-x: auto;
+        display: block;
     }
+}
 
-    #addButton:hover {
-        background-color: #45a049;
-    }
-    </style>       
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+td:hover {
+    background-color: #f9f9f9;
+}
+
+.add-info-empty {
+    background-color: #f8d7da; /* Light red for empty info */
+    color: #721c24; /* Dark red text */
+}
+</style>     
 </head>
 <body>
     <div class="logo-container">
@@ -123,7 +165,7 @@
     
     <h1>Standard Production Data</h1>
 
-    <table id="processTable">
+    <table id="processTable" style="border-collapse: collapse;">
         <thead>
             <tr>
                 <th>Main Process</th>
@@ -136,44 +178,54 @@
             </tr>
         </thead>
         <tbody>
-            {% for detail in process_details %}
-                <tr>
-                    <!-- Main Process cell -->
-                    <td rowspan="{{ detail.process|length }}" style="background-color:rgba(155,239,253,0.397);">
-                        {{ detail.process.main_process }}
-                    </td>
-        
-                    <!-- Sub Process and Add Info -->
-                    <td style="background-color:rgb(188,247,188);text-align: left;">{{ detail.process.sub_process }}</td>
-                    <td style="background-color:rgb(247,230,206);">{{ detail.add_info }}</td>
-        
-                    {% for time in time_intervals %}
-                        <td class="time-cell">
-                            {% for start_info in detail.start_infos %}
-                                {% if start_info.time_range == time %}
-                                    <span>START<br>{{ start_info.info }}</span><br>
-                                {% endif %}
-                            {% endfor %}
-                            {% for end_info in detail.end_infos %}
-                                {% if end_info.time_range == time %}
-                                    <span>END<br>{{ end_info.info }}</span><br>
-                                {% endif %}
-                            {% endfor %}
-                            {% for startend_info in detail.startend_infos %}
-                                {% if startend_info.time_range == time %}
-                                    <span>START/END<br>{{ startend_info.info }}</span><br>
-                                {% endif %}
-                            {% endfor %}
+            {% for group in process_details %}
+                {% for process in group.sub_processes %}
+                    <tr>
+                        {% if forloop.first %}
+                            <!-- Main Process rowspan -->
+                            <td rowspan="{{ group.sub_processes|length }}" 
+                                style="background-color:rgba(155,239,253,0.397); border: 1px solid black;">
+                                {{ group.main_process }}
+                            </td>
+                        {% endif %}
+
+                        {% if process.rowspan > 0 %}
+                            <!-- Sub Process rowspan -->
+                            <td rowspan="{{ process.rowspan }}" 
+                                style="background-color:rgb(188,247,188); text-align: left; border: 1px solid black;">
+                                {{ process.process.sub_process }}
+                            </td>
+                        {% endif %}
+
+                        <td class="add-info" style="border: 1px solid black;">
+                            {{ process.add_info }}
                         </td>
-                    {% endfor %}
-                    <td>
-                        <a href="{% url 'process_edit' detail.process.pk %}">Edit</a>
-                    </td>
-                </tr>
+
+                        <!-- Time Intervals Columns (No rowspan here) -->
+                        {% for time in time_intervals %}
+                            <td style="border: 1px solid black;">
+                                {% for start_info in process.start_infos %}
+                                    {% if start_info.time_range == time %}
+                                        <span>START<br>{{ start_info.info }}</span><br>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for end_info in process.end_infos %}
+                                    {% if end_info.time_range == time %}
+                                        <span>END<br>{{ end_info.info }}</span><br>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+
+                        <!-- Actions Column -->
+                        <td style="border: 1px solid black;">
+                            <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
             {% endfor %}
         </tbody>
     </table>
-
     <a href="{% url 'process_add' %}" onclick="openAddProcessForm()">Add New Process</a>
 </body>
 <script>
@@ -189,41 +241,18 @@
         const subProcessCell = currentRow.cells[1]; 
 
         // Check if main process is the same as the last one
-        if (mainProcessCell.innerText === lastMainProcess) {
+        if (mainProcessCell && mainProcessCell.innerText === lastMainProcess) {
             mainProcessCell.classList.add("hidden");
         } else {
             lastMainProcess = mainProcessCell.innerText;
-            const mainProcessRowSpan = calculateRowSpan(rows, i, lastMainProcess, 0);
-            if (mainProcessRowSpan > 1) {
-                mainProcessCell.rowSpan = mainProcessRowSpan;
-            }
         }
 
         // Check if sub process is the same as the last one
-        if (subProcessCell.innerText === lastSubProcess) {
+        if (subProcessCell && subProcessCell.innerText === lastSubProcess) {
             subProcessCell.classList.add("hidden");
         } else {
             lastSubProcess = subProcessCell.innerText;
-            const subProcessRowSpan = calculateRowSpan(rows, i, lastSubProcess, 1);
-            if (subProcessRowSpan > 1) {
-                subProcessCell.rowSpan = subProcessRowSpan;
-            }
         }
-    }
-
-    function calculateRowSpan(rows, startIndex, processValue, cellIndex) {
-        let count = 0;
-        for (let j = startIndex; j < rows.length; j++) {
-            const row = rows[j];
-            const processCell = row.cells[cellIndex];
-            if (processCell.innerText === processValue) {
-                count++;
-            } else {
-                break; 
-            }
-        }
-        return count;
     }
 </script>
-</body>
 </html>
