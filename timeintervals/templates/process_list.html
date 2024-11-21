@@ -7,127 +7,114 @@
     <title>Process List</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style>
-        /* General Styles */
         body {
-            background-color: aliceblue;
             margin: 0;
             padding: 0;
-            text-align: center;
-            
+            height: 100%;
         }
 
-        /* Logo */
-        .logo-container {
-            position: fixed;
-            top: 10px;
-            left: 20px;
-            z-index: 10;
-        }
-
-        .logo {
-            width: 70px;
-            height: auto;
-        }
-
-        /* Header */
+        /* Navigation Links - Position them on the top-right */
         .link-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            position: absolute;
+            top: 20px; /* Distance from the top of the page */
+            right: 20px; /* Distance from the right side of the page */
         }
 
-        .home-link {
-            font-size: 16px;
-            color: rgb(66, 4, 107);
+        .link-container a {
+            margin-left: 15px; /* Space between the links */
             text-decoration: none;
+            color: #000; /* Change link color as needed */
             font-weight: bold;
         }
 
-        .home-link:hover {
-            color: blue;
-        }
-
+        /* Title Styling */
         h1 {
-            margin: 20px 0;
-            font-family:monospace;
+            text-align: center; /* Center the title */
         }
 
-        /* Table Styles */
-        table {
+        /* Table Styling - Can be modified as per your requirements */
+        #processTable {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
-            background-color: white;
-            font-family:Verdana, Geneva, Tahoma, sans-serif;
         }
 
-        th, td {
+        td, th {
             width: 150px;
             height: 40px;
             text-align: center;
             border: 1px solid #050505;
+            vertical-align: middle;
+            padding: 1px;
+        }
+        td, th {
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #050505; /* Border for both td and th */
+            vertical-align: middle;
+            padding: 1px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            vertical-align: middle;
-            padding: 5px;
         }
 
-        th:nth-child(1), td:nth-child(1) {
-            width: 200px;
-        }
-
-        th:nth-child(2), td:nth-child(2) {
-            width: 300px;
-        }
-
+        /* Style for table headers */
         th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-            color: #333;
-            font-family:sans-serif;
+            border: 1px solid #050505; /* Add border to table headers */
+            padding: 1px; /* Add padding for spacing */
+            text-align: center; /* Center align the header text */
+            background-color: #f2f2f2; /* Optional: add a background color for headers */
         }
 
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        td:hover {
-            background-color: #f9f9f9;
-        }
-
+        /* Rest of the existing CSS styles for .start, .end, .startend, etc. */
         .start {
             background-color: rgb(198, 243, 198);
             color: darkgreen;
+            display: inline-block;
+            width: 100%;
+            padding: 1px;
+            word-wrap: break-word;
+            white-space: normal;
         }
 
         .end {
             background-color: lightcoral;
             color: darkred;
+            display: inline-block;
+            width: 100%;
+            padding: 1px;
+            word-wrap: break-word;
+            white-space: normal;
         }
 
         .startend {
             background-color: lightpink;
-            color: rgb(10, 10, 10);
+            color: rgb(7, 7, 7);
+            display: inline-block;
+            width: 100%;
+            padding: 1px;
+            word-wrap: break-word;
+            white-space: normal;
+            cursor: pointer;
         }
 
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            th, td {
-                font-size: 14px;
-                padding: 8px;
-            }
+        .startend.expanded {
+            white-space: normal;
+            background-color: lightblue;
+            position: absolute;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: scroll;
+        }
 
-            table {
-                width: 100%;
-                overflow-x: auto;
-                display: block;
-            }
+        td span {
+            display: block;
+            width: 100%;
         }
     </style>
 </head>
@@ -194,18 +181,12 @@
                                 {% endfor %}
                                 {% for startend_info in process.startend_infos %}
                                     {% if startend_info.time_range == time %}
-                                        <span class="end">STARTEND<br>{{ startend_info.info }}</span><br>
+                                        <span class="startend">STARTEND<br>{{ startend_info.info }}</span><br>
                                     {% endif %}
                                 {% endfor %}
                             </td>
                         {% endfor %}
 
-                        <td>
-                            <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
-                        </td>
-                        <td>
-                            <a href="{% url 'add_process_interval' process.process.pk %}">Add</a>
-                        </td>
                         <td>
                             <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
                         </td>
@@ -220,32 +201,19 @@
 
     <!-- Add New Process -->
     <a href="{% url 'process_add' %}">Add New Process</a>
+
+    <script>
+        // Add click event listener to `startend` cells to toggle expanded view
+        document.addEventListener("DOMContentLoaded", function () {
+            const startendCells = document.querySelectorAll('.startend');
+
+            startendCells.forEach(cell => {
+                cell.addEventListener('click', function () {
+                    // Toggle expanded class on click to show full content
+                    this.classList.toggle('expanded');
+                });
+            });
+        });
+    </script>
 </body>
-<script>
-    const table = document.getElementById("processTable");
-    const rows = table.getElementsByTagName("tr");
-
-    let lastMainProcess = "";
-    let lastSubProcess = "";
-
-    for (let i = 1; i < rows.length; i++) { 
-        const currentRow = rows[i];
-        const mainProcessCell = currentRow.cells[0]; 
-        const subProcessCell = currentRow.cells[1]; 
-
-        // Check if main process is the same as the last one
-        if (mainProcessCell && mainProcessCell.innerText === lastMainProcess) {
-            mainProcessCell.classList.add("hidden");
-        } else {
-            lastMainProcess = mainProcessCell.innerText;
-        }
-
-        // Check if sub process is the same as the last one
-        if (subProcessCell && subProcessCell.innerText === lastSubProcess) {
-            subProcessCell.classList.add("hidden");
-        } else {
-            lastSubProcess = subProcessCell.innerText;
-        }
-    }
-</script>
 </html>
