@@ -3,176 +3,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Process List</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <style>
-.logo-container {
-    position: fixed;
-    top: 10px;
-    left: 20px;
-    z-index: 10;
-}
+        /* General Styles */
+        body {
+            background-color: aliceblue;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
 
-.logo {
-    width: 70px;
-    height: auto;
-}
+        /* Logo */
+        .logo-container {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            z-index: 10;
+        }
 
-body {
-    background-color: aliceblue;
-    text-align: center;
-}
+        .logo {
+            width: 70px;
+            height: auto;
+        }
 
-.hidden {
-    display: none;
-}
+        /* Header */
+        .link-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
 
-.start {
-    background-color: rgb(198, 243, 198); /* Green for START */
-    color: darkgreen;
-}
+        .home-link {
+            font-size: 16px;
+            color: rgb(66, 4, 107);
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-.end {
-    background-color: lightcoral; /* Red for END */
-    color: darkred;
-}
+        .home-link:hover {
+            color: blue;
+        }
 
-.startend {
-    background-color: lightpink; /* Orange for START/END */
-    color: rgb(10, 10, 10);
-}
+        h1 {
+            margin: 20px 0;
+        }
 
-.link-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
-    z-index: 1000;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-}
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            background-color: white;
+        }
 
-.home-link {
-    font-size: 16px;
-    color: rgb(66, 4, 107);
-    text-decoration: none;
-}
+        th, td {
+            width: 150px;
+            height: 40px;
+            text-align: center;
+            border: 1px solid #050505;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+            padding: 5px;
+        }
 
-.home-link:hover {
-    color: blue;
-}
+        th:nth-child(1), td:nth-child(1) {
+            width: 200px;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-}
+        th:nth-child(2), td:nth-child(2) {
+            width: 300px;
+        }
 
-th, td {
-    width: 150px;
-    height: 40px;
-    text-align: center;
-    border: 1px solid #050505;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-    padding: 0px;  /* Increased padding */
-}
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            color: #333;
+        }
 
-th:nth-child(1), td:nth-child(1) {
-    width: 200px;
-}
+        tr:hover {
+            background-color: #f1f1f1;
+        }
 
-th:nth-child(2), td:nth-child(2) {
-    width: 300px;
-}
+        td:hover {
+            background-color: #f9f9f9;
+        }
 
-th {
-    background-color: #f0f0f0; /* Lighter gray */
-    font-weight: bold;
-    color: #333;
-}
+        .start {
+            background-color: rgb(198, 243, 198);
+            color: darkgreen;
+        }
 
-.time-cell {
-    vertical-align: middle;
-}
+        .end {
+            background-color: lightcoral;
+            color: darkred;
+        }
 
-.add-subprocess-container {
-    margin-bottom: 20px; /* Add some spacing below the button */
-}
+        .startend {
+            background-color: lightpink;
+            color: rgb(10, 10, 10);
+        }
 
-#addButton {
-    padding: 12px 24px; /* Increased padding */
-    background-color: #4CAF50;
-    color: white;
-    font-size: 18px; /* Larger font size */
-    border: none;
-    border-radius: 8px; /* More rounded corners */
-    cursor: pointer;
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-}
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            th, td {
+                font-size: 14px;
+                padding: 8px;
+            }
 
-#addButton:hover {
-    background-color: #45a049;
-}
-
-.add-info-with-border {
-    border: 1px solid black;
-}
-
-.add-info-no-border {
-    border: none;
-}
-
-@media (max-width: 768px) {
-    th, td {
-        font-size: 14px;
-        padding: 8px;
-    }
-
-    table {
-        width: 100%;
-        overflow-x: auto;
-        display: block;
-    }
-}
-
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-td:hover {
-    background-color: #f9f9f9;
-}
-
-.add-info-empty {
-    background-color: #f8d7da; /* Light red for empty info */
-    color: #721c24; /* Dark red text */
-}
-</style>     
+            table {
+                width: 100%;
+                overflow-x: auto;
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Logo Section -->
     <div class="logo-container">
         <img src="{% static 'logo.webp' %}" alt="Logo" class="logo">
     </div>
-    
+
+    <!-- Navigation Links -->
     <div class="link-container">
-        <a href="{% url 'home' %}" class="home-link"><b>Home</b></a>
-        <a href="{% url 'button_page' %}" class="home-link"><b>Logout</b></a>
+        <a href="{% url 'home' %}" class="home-link">Home</a>
+        <a href="{% url 'button_page' %}" class="home-link">Logout</a>
     </div>
-    
+
+    <!-- Title -->
     <h1>Standard Production Data</h1>
 
-    <table id="processTable" style="border-collapse: collapse;">
+    <!-- Process Table -->
+    <table id="processTable">
         <thead>
             <tr>
                 <th>Main Process</th>
                 <th>Sub Process</th>
                 <th>Add Info</th>
                 {% for time in time_intervals %}
-                    <th><b>{{ time }}</b></th>
+                    <th>{{ time }}</th>
                 {% endfor %}
                 <th>Actions</th>
                 <th>Time</th>
@@ -183,7 +161,6 @@ td:hover {
                 {% for process in group.sub_processes %}
                     <tr>
                         {% if forloop.first %}
-                            <!-- Main Process rowspan -->
                             <td rowspan="{{ group.sub_processes|length }}" 
                                 style="background-color:rgba(155,239,253,0.397); border: 1px solid black;">
                                 {{ group.main_process }}
@@ -191,35 +168,30 @@ td:hover {
                         {% endif %}
 
                         {% if process.rowspan > 0 %}
-                            <!-- Sub Process rowspan -->
                             <td rowspan="{{ process.rowspan }}" 
                                 style="background-color:rgb(188,247,188); text-align: left; border: 1px solid black;">
                                 {{ process.process.sub_process }}
                             </td>
                         {% endif %}
 
-                        <td class="add-info" style="border: 1px solid black;">
-                            {{ process.add_info }}
-                        </td>
+                        <td>{{ process.add_info }}</td>
 
-                        <!-- Time Intervals Columns (No rowspan here) -->
                         {% for time in time_intervals %}
-                            <td style="border: 1px solid black;">
+                            <td>
                                 {% for start_info in process.start_infos %}
                                     {% if start_info.time_range == time %}
-                                        <span>START<br>{{ start_info.info }}</span><br>
+                                        <span class="start">START<br>{{ start_info.info }}</span><br>
                                     {% endif %}
                                 {% endfor %}
                                 {% for end_info in process.end_infos %}
                                     {% if end_info.time_range == time %}
-                                        <span>END<br>{{ end_info.info }}</span><br>
+                                        <span class="end">END<br>{{ end_info.info }}</span><br>
                                     {% endif %}
                                 {% endfor %}
                             </td>
                         {% endfor %}
 
-                        <!-- Actions Column -->
-                        <td style="border: 1px solid black;">
+                        <td>
                             <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
                         </td>
                         <td>
@@ -230,7 +202,9 @@ td:hover {
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'process_add' %}" onclick="openAddProcessForm()">Add New Process</a>
+
+    <!-- Add New Process -->
+    <a href="{% url 'process_add' %}">Add New Process</a>
 </body>
 <script>
     const table = document.getElementById("processTable");
