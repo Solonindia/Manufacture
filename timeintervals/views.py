@@ -168,26 +168,28 @@ def process_add(request):
     return render(request, 'process_add.html')
 
 def process_edit(request, process_id):
-    process = get_object_or_404(Process, pk=process_id)  # Fetch the process object
+    process = get_object_or_404(Process, pk=process_id)  # Fetch the process by ID
 
-    # Initialize the main form and the formset
     if request.method == 'POST':
-        form = ProcessForm(request.POST, instance=process)  # Edit the existing process
-        formset = ProcessIntervalFormSet(request.POST, instance=process)  # Edit the existing intervals
+        # Process the submitted form data
+        form = ProcessForm(request.POST, instance=process)
+        formset = ProcessIntervalFormSet(request.POST, instance=process)
         
-        if form.is_valid() and formset.is_valid():  # Check both forms for validity
+        if form.is_valid() and formset.is_valid():
             form.save()  # Save the main process form
-            formset.save()  # Save the intervals formset
-            return redirect('process_list')  # Redirect to the process list after saving
+            formset.save()  # Save the related intervals
+            return redirect('process_list')  # Redirect to a list or detail view after saving
     else:
-        form = ProcessForm(instance=process)  # If GET request, just load the existing process
-        formset = ProcessIntervalFormSet(instance=process)  # Load the existing intervals
+        # Display the existing data
+        form = ProcessForm(instance=process)
+        formset = ProcessIntervalFormSet(instance=process)
 
     return render(request, 'process_edit.html', {
-        'form': form,  # Pass the main form to the template
-        'formset': formset,  # Pass the formset to the template
-        'process': process,  # Optionally pass the process object to the template if needed
+        'form': form,  # Main process form
+        'formset': formset,  # Formset for intervals
+        'process': process  # Pass the process for context
     })
+
 
 def add_process_interval(request, process_id):
     process = get_object_or_404(Process, pk=process_id)

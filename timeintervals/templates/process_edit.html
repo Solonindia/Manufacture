@@ -114,21 +114,24 @@
     </div>
 
     <h3>Edit Process: {{ process.name }}</h3>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Main Process form fields -->
+        <h2>Process Details</h2>
+        {{ form.as_p }}  <!-- Display the main process form -->
 
         <h2>Time Intervals</h2>
         <div id="formset-container">
-            {{ formset.management_form }}  <!-- Management form for formset -->
+            {{ formset.management_form }}  <!-- Include management form -->
             {% for form in formset %}
                 <div class="formset-item">
-                    {{ form.as_p }}  <!-- Each interval form (start_time, end_time, info) -->
+                    {{ form.as_p }}  <!-- Render each interval form -->
                 </div>
             {% endfor %}
         </div>
+
         <button type="submit">Save</button>
+        <a href="{% url 'process_list' %}">Cancel</a>
     </form>
-    <a href="{% url 'process_list' %}">Cancel</a>
 </body>
 </html>

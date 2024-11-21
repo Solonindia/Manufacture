@@ -73,7 +73,7 @@ ProcessIntervalFormSet = inlineformset_factory(
     ProcessInterval,
     form=ProcessIntervalForm,
     formset=ProcessIntervalFormSet,
-    fields=['start_time', 'end_time', 'startend_time', 'start_info', 'end_info'],
+    fields=['start_time', 'end_time', 'startend_time', 'start_info', 'end_info','startend_info'],
     extra=0,  
 )
 
