@@ -77,6 +77,7 @@ def process_list(request):
     time_intervals = []
     start_time = datetime.strptime('08:30', '%H:%M')
     end_time = datetime.strptime('00:00', '%H:%M') + timedelta(days=1)
+    startend_time = datetime.strptime('08:30', '%H:%M')
 
     while start_time < end_time:
         next_time = start_time + timedelta(minutes=10)
@@ -97,24 +98,36 @@ def process_list(request):
             for index, process in enumerate(sub_process_list):
                 start_infos = []
                 end_infos = []
+                startend_infos = []  # Add this list to collect startend_info
 
                 for interval in process.intervals.all():
+                    # Process start_time
                     if interval.start_time:
                         formatted_time = interval.start_time.strftime('%H:%M')
                         next_time = (datetime.combine(datetime.today(), interval.start_time) + timedelta(minutes=10)).strftime('%H:%M')
                         time_range = f"{formatted_time}-{next_time}"
                         start_infos.append({'time_range': time_range, 'info': interval.start_info})
 
+                    # Process end_time
                     if interval.end_time:
                         formatted_time = interval.end_time.strftime('%H:%M')
                         next_time = (datetime.combine(datetime.today(), interval.end_time) + timedelta(minutes=10)).strftime('%H:%M')
                         time_range = f"{formatted_time}-{next_time}"
                         end_infos.append({'time_range': time_range, 'info': interval.end_info})
 
+                    # Process startend_time
+                    if interval.startend_time:
+                        formatted_time = interval.startend_time.strftime('%H:%M')
+                        next_time = (datetime.combine(datetime.today(), interval.startend_time) + timedelta(minutes=10)).strftime('%H:%M')
+                        time_range = f"{formatted_time}-{next_time}"
+                        startend_infos.append({'time_range': time_range, 'info': interval.start_info})  # Append to startend_infos
+
+                # Append process details
                 process_group.append({
                     'process': process,
                     'start_infos': start_infos,
                     'end_infos': end_infos,
+                    'startend_infos': startend_infos,  # Add this to your process dictionary
                     'add_info': process.add_info,
                     'rowspan': rowspan if index == 0 else 0,  # Set rowspan only for the first occurrence
                 })

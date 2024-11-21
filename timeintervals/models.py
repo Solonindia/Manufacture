@@ -16,6 +16,7 @@ class ProcessInterval(models.Model):
     startend_time = models.TimeField(null=True)
     start_info = models.CharField(max_length=100, blank=True)
     end_info = models.CharField(max_length=100, blank=True)
+    startend_info = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.start_time} - {self.end_time}"
@@ -28,7 +29,7 @@ class ProcessInterval1(models.Model):
     startend_time = models.TimeField(null=True)
     start_info = models.CharField(max_length=100, blank=True)
     end_info = models.CharField(max_length=100, blank=True)
-    
+    startend_info = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.start_time} - {self.end_time}"

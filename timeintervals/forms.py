@@ -11,7 +11,7 @@ class ProcessForm(forms.ModelForm):
 class ProcessIntervalForm(forms.ModelForm):
     class Meta:
         model = ProcessInterval
-        fields = ['start_time', 'end_time', 'startend_time', 'start_info', 'end_info']  
+        fields = ['start_time', 'end_time', 'startend_time', 'start_info', 'end_info','startend_info']  
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +39,7 @@ class ProcessIntervalForm(forms.ModelForm):
         self.fields['startend_time'].required = False
         self.fields['start_info'].required = False
         self.fields['end_info'].required = False
+        self.fields['startend_info'].required = False
 
     def generate_time_choices(self):
         choices = []
@@ -89,7 +90,7 @@ class ProcessForm1(forms.ModelForm):
 class ProcessIntervalForm1(forms.ModelForm):
     class Meta:
         model = ProcessInterval1
-        fields = ['start_time', 'end_time', 'startend_time', 'start_info', 'end_info']
+        fields = ['start_time', 'end_time', 'startend_time', 'start_info', 'end_info', 'startend_info']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -113,13 +114,14 @@ class ProcessIntervalForm1(forms.ModelForm):
         self.fields['startend_time'].required = False
         self.fields['start_info'].required = False
         self.fields['end_info'].required = False
+        self.fields['startend_info'].required = False
     
 # Create a formset to handle the ProcessInterval objects using the custom form
 ProcessIntervalFormSet1 = inlineformset_factory(
     Process,
     ProcessInterval1,
     form=ProcessIntervalForm1,
-    fields=['start_time', 'end_time', 'startend_time', 'start_info', 'end_info'],
+    fields=['start_time', 'end_time', 'startend_time', 'start_info', 'end_info','startend_info'],
     extra=1,  
 )
 

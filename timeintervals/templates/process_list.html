@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             text-align: center;
+            
         }
 
         /* Logo */
@@ -53,6 +54,7 @@
 
         h1 {
             margin: 20px 0;
+            font-family:monospace;
         }
 
         /* Table Styles */
@@ -61,6 +63,7 @@
             border-collapse: collapse;
             table-layout: fixed;
             background-color: white;
+            font-family:Verdana, Geneva, Tahoma, sans-serif;
         }
 
         th, td {
@@ -87,6 +90,7 @@
             background-color: #f0f0f0;
             font-weight: bold;
             color: #333;
+            font-family:sans-serif;
         }
 
         tr:hover {
@@ -188,9 +192,20 @@
                                         <span class="end">END<br>{{ end_info.info }}</span><br>
                                     {% endif %}
                                 {% endfor %}
+                                {% for startend_info in process.startend_infos %}
+                                    {% if startend_info.time_range == time %}
+                                        <span class="end">STARTEND<br>{{ startend_info.info }}</span><br>
+                                    {% endif %}
+                                {% endfor %}
                             </td>
                         {% endfor %}
 
+                        <td>
+                            <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
+                        </td>
+                        <td>
+                            <a href="{% url 'add_process_interval' process.process.pk %}">Add</a>
+                        </td>
                         <td>
                             <a href="{% url 'process_edit' process.process.pk %}">Edit</a>
                         </td>
