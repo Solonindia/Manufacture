@@ -120,7 +120,7 @@ def process_list(request):
                         formatted_time = interval.startend_time.strftime('%H:%M')
                         next_time = (datetime.combine(datetime.today(), interval.startend_time) + timedelta(minutes=10)).strftime('%H:%M')
                         time_range = f"{formatted_time}-{next_time}"
-                        startend_infos.append({'time_range': time_range, 'info': interval.start_info})  # Append to startend_infos
+                        startend_infos.append({'time_range': time_range, 'info': interval.startend_info})  # Append to startend_infos
 
                 # Append process details
                 process_group.append({
