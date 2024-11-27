@@ -193,6 +193,14 @@
                         <td>
                             <a href="{% url 'add_process_interval' process.process.pk %}">Add</a>
                         </td>
+                        <td>
+                            <button 
+                                class="toggle-visibility" 
+                                data-id="{{ process.process.id }}" 
+                                data-action="{% if process.process.visible %}hide{% else %}unhide{% endif %}">
+                                {% if process.process.visible %}Hide{% else %}Unhide{% endif %}
+                            </button>
+                        </td>                                            
                     </tr>
                 {% endfor %}
             {% endfor %}
@@ -203,17 +211,34 @@
     <a href="{% url 'process_add' %}">Add New Process</a>
 
     <script>
-        // Add click event listener to `startend` cells to toggle expanded view
-        document.addEventListener("DOMContentLoaded", function () {
-            const startendCells = document.querySelectorAll('.startend');
+        document.querySelectorAll('.toggle-visibility').forEach(button => {
+            button.addEventListener('click', function () {
+                const processId = this.dataset.id;
+                const action = this.dataset.action;
 
-            startendCells.forEach(cell => {
-                cell.addEventListener('click', function () {
-                    // Toggle expanded class on click to show full content
-                    this.classList.toggle('expanded');
-                });
+                fetch(`/time/toggle_visibility/${processId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ action: action })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.textContent = data.new_action === 'hide' ? 'Unhide' : 'Hide';
+                        this.dataset.action = data.new_action;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
             });
         });
+
+        function getCSRFToken() {
+            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+            return cookie ? cookie.split('=')[1] : '';
+        }
     </script>
 </body>
 </html>

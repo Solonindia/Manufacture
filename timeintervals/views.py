@@ -139,6 +139,20 @@ def process_list(request):
         'time_intervals': time_intervals,
     })
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt  # Use CSRF for security; include CSRF tokens in AJAX requests
+def toggle_visibility(request, process_id):
+    if request.method == 'POST':
+        action = json.loads(request.body).get('action')
+        process = get_object_or_404(Process, id=process_id)
+        process.visible = (action == 'unhide')  # Toggle visibility based on action
+        process.save()
+        return JsonResponse({'success': True, 'new_action': 'unhide' if process.visible else 'hide'})
+    return JsonResponse({'success': False}, status=400)
+
 def process_add(request):
     if request.method == 'POST':
         main_process = request.POST.get('main_process')
@@ -222,7 +236,7 @@ def Home(request):
     return render(request, 'Home.html')
 
 def process_list1(request):
-    processes = Process.objects.prefetch_related('intervals1').all().order_by('created_at')
+    processes = Process.objects.prefetch_related('intervals1').filter(visible=True).order_by('created_at')
     
     # Group processes by main_process and sub_process
     grouped_processes = [
@@ -281,6 +295,7 @@ def process_list1(request):
         'grouped_processes': grouped_processes,
         'time_intervals': time_intervals,
     })
+
 
 def process_full(request):
     processes = Process.objects.prefetch_related('intervals1').all().order_by('created_at')
@@ -381,8 +396,3 @@ def process_edit2(request,pk):
         formset = ProcessIntervalFormSet1(queryset=ProcessInterval1.objects.none())  # Ensures empty formset on GET
 
     return render(request, 'process_edit2.html', {'formset': formset})
-
-
-
-
-
