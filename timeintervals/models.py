@@ -5,6 +5,7 @@ class Process(models.Model):
     sub_process = models.CharField(max_length=100, null=True)
     add_info = models.CharField(max_length=255, blank=True)  # New additional info field
     created_at = models.DateTimeField(auto_now_add=True, null=True)
+    visible = models.BooleanField(default=True)  # Track if the process is hidden
 
     def __str__(self):
         return self.main_process

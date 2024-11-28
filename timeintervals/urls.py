@@ -15,5 +15,7 @@ urlpatterns = [
     path('user/login/', views.login_view, name='loginu'),
     path('superuser/login/', views.login1_view, name='login'),
     path('', views.button_page, name='button_page'),
-    
+    path('toggle_visibility/<int:process_id>/', views.toggle_visibility, name='toggle_visibility'),
+
 ]
+    
